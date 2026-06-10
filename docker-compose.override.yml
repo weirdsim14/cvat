@@ -7,9 +7,19 @@ services:
     ports: !override
       - 8090:8080
 
+  # Match any Host header so CVAT is reachable via Tailscale IP / LAN IP,
+  # not just localhost (upstream rules pin Host to ${CVAT_HOST}).
   cvat_server:
+    labels:
+      traefik.http.routers.cvat.rule:
+        PathPrefix(`/api/`) || PathPrefix(`/static/`) || PathPrefix(`/admin`)
+          || PathPrefix(`/django-rq`)
     volumes:
       - cvat_share:/home/django/share:ro
+  cvat_ui:
+    labels:
+      traefik.http.routers.cvat-ui.rule: PathPrefix(`/`)
+      traefik.http.routers.cvat-ui.priority: "1"
   cvat_worker_import:
     volumes:
       - cvat_share:/home/django/share:ro
