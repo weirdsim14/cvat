@@ -1,0 +1,31 @@
+# Local overrides for this host (DGX Spark, aarch64):
+# - host port 8080 is taken -> publish CVAT on 8090
+# - mount the shared annotation-data dir as the CVAT "connected file share",
+#   so the same imagery can also be used from Label Studio (port 8093)
+services:
+  traefik:
+    ports: !override
+      - 8090:8080
+
+  cvat_server:
+    volumes:
+      - cvat_share:/home/django/share:ro
+  cvat_worker_import:
+    volumes:
+      - cvat_share:/home/django/share:ro
+  cvat_worker_export:
+    volumes:
+      - cvat_share:/home/django/share:ro
+  cvat_worker_annotation:
+    volumes:
+      - cvat_share:/home/django/share:ro
+  cvat_worker_chunks:
+    volumes:
+      - cvat_share:/home/django/share:ro
+
+volumes:
+  cvat_share:
+    driver_opts:
+      type: none
+      device: /home/sangcheol/Project/annotation-data
+      o: bind
